@@ -503,7 +503,7 @@ def testpol(argv):
     # shutil.move(dire+argv[2], p1File)
     # shutil.move(dire+argv[3], p1File)
     
-    p1 = Player("computer", 0)
+    p1 = Player("Computer", 0)
     p1.loadPolicy(p1File)
     p2 = Player("Computer", 0)
     p1.loadPolicy(p2File)
@@ -547,14 +547,14 @@ if __name__ == "__main__":
             print("Please input the name of the new saved file")
             args[3] == input()
             backup(args)
-        elif args[1] == "test":
-            print("Please indicate the name of p1")
-            print("Please note that it must be a saved policy")
-            args[2] == input()
-            print("Please indicate the name of p2")
-            print("Please note that it must be a saved policy")
-            args[3] == input()
-            testpol(args)
+        # elif args[1] == "test":
+        #     print("Please indicate the name of p1")
+        #     print("Please note that it must be a saved policy")
+        #     args[2] == input()
+        #     print("Please indicate the name of p2")
+        #     print("Please note that it must be a saved policy")
+        #     args[3] == input()
+        #     testpol(args)
     elif sys.argv[1] == "train":
         training(sys.argv)
     elif sys.argv[1] == "play":
