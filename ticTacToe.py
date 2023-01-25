@@ -353,7 +353,7 @@ class Player:
         self.states = []  # record all positions taken
         self.lr = 0.2
         self.exp_rate = exp_rate
-        self.decay_gamma = 0.86
+        self.decay_gamma = 0.94
         self.states_value = {}  # state -> value
 
     def getHash(self, board):
@@ -591,7 +591,7 @@ if __name__ == "__main__":
     # testingtestpol = [0,"test", "500k44exp88yP1", "500k44exp88yP1"]
     # testpol(testingtestpol)
     if len(sys.argv) == 1:
-        print("Please input whether you would like to play, train, save, backup (Policy), or trainP")
+        print("Please input whether you would like to play, train, or save")#, or  backup (Policy)")#, or trainP")
         args = [sys.argv, "", "", "", ""]
         args[1] = input().strip()
 
@@ -618,14 +618,14 @@ if __name__ == "__main__":
             print("Please input the name of the new saved file")
             args[3] == input().strip()
             backup(args)
-        # elif args[1] == "test":
-        #     print("Please indicate the name of p1")
-        #     print("Please note that it must be a saved policy")
-        #     args[2] == input()
-        #     print("Please indicate the name of p2")
-        #     print("Please note that it must be a saved policy")
-        #     args[3] == input()
-        #     testpol(args)
+        elif args[1] == "test":
+            print("Please indicate the name of p1")
+            print("Please note that it must be a saved policy")
+            args[2] == input()
+            print("Please indicate the name of p2")
+            print("Please note that it must be a saved policy")
+            args[3] == input()
+            testpol(args)
         elif args[1] == "trainP":
             print("Please input how many games it should run")
             args[2] = input().strip()
