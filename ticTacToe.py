@@ -85,8 +85,8 @@ class State:
             self.p1.feedReward(-0.5)
             self.p2.feedReward(1)
         else:
-            self.p1.feedReward(0.1)
-            self.p2.feedReward(0.5)
+            self.p1.feedReward(0)
+            self.p2.feedReward(0)
 
     # board reset
     def reset(self):
@@ -192,10 +192,10 @@ class State:
 
     def play3(self, rounds=100):
         print("rounds = " + str(rounds)+"\n")
-        
         for i in range(rounds):
             modA = 0
             self.showBoard2()
+
             while not self.isEnd:
                 # Player 1
                 positions = self.availablePositions()
@@ -235,6 +235,65 @@ class State:
                         self.reset()
                         break
 
+
+    def play4(self, rounds=100):
+        print("rounds = " + str(rounds)+"\n")
+        P1count = 0
+        P2count = 0
+        for i in range(rounds):
+            if i == (rounds - 1):
+                if P1count > P2count:
+                    print("P1 won more games!!! with a total of " + str(P1count) + "games out of " + str(rounds))
+                else:
+                    print("P2 won more games!!! with a total of " + str(P2count) + "games out of " + str(rounds))
+            modA = 0
+            # self.showBoard2()
+            while not self.isEnd:
+                # Player 1
+                positions = self.availablePositions()
+                p1_action = self.p1.chooseAction2(positions, self.board, self.playerSymbol)
+                # take action and upate board state
+                self.updateState(p1_action)
+                board_hash = self.getHash()
+                self.p1.addState(board_hash)
+                # check board status if it is end
+                # self.showBoard2()
+                win = self.winner()
+                if win is not None:
+                    if win > 0:
+                        P1count += 1
+                    else:
+                        P2count += 1
+                    # self.showBoard2()
+                    # ended with p1 either win or draw
+                    self.giveReward()
+                    self.p1.reset()
+                    self.p2.reset()
+                    self.reset()
+                    
+                    break
+
+                else:
+                    # Player 2
+                    positions = self.availablePositions()
+                    p2_action = self.p2.chooseAction2(positions, self.board, self.playerSymbol)
+                    self.updateState(p2_action)
+                    board_hash = self.getHash()
+                    self.p2.addState(board_hash)
+
+                    win = self.winner()
+                    if win is not None:
+                        if win > 0:
+                            P1count += 1
+                        else:
+                            P2count += 1
+                        # self.showBoard()
+                        # ended with p2 either win or draw
+                        self.giveReward()
+                        self.p1.reset()
+                        self.p2.reset()
+                        self.reset()
+                        break
 
     def showBoard(self,f,rounds, modA = 50):
         # p1: x  p2: o
@@ -294,7 +353,7 @@ class Player:
         self.states = []  # record all positions taken
         self.lr = 0.2
         self.exp_rate = exp_rate
-        self.decay_gamma = 0.94
+        self.decay_gamma = 0.86
         self.states_value = {}  # state -> value
 
     def getHash(self, board):
@@ -339,14 +398,14 @@ class Player:
     def chooseAction2(self, positions, current_board, symbol):
         if np.random.uniform(0, 1) <= self.exp_rate:
             # take random action
-            print("RANDOM ACTION")
+            # print("RANDOM ACTION")
             idx = np.random.choice(len(positions))
             action = positions[idx]
             # if rounds != 1 and rounds% modA == 0:
 
                 # f.write("RANDOMLY CHOSEN" + str(action)+"\n")
             # else:
-            print(str(action)+"\n")
+            # print(str(action)+"\n")
 
 
         else:
@@ -512,7 +571,19 @@ def testpol(argv):
     # shutil.move(p1File, dire+argv[2])
     # shutil.move(p2File, dire+argv[3]) 
     
+def trainPol(argv):
+    p1 = Player("p1", exp_rate = float(argv[3]))
+    p2 = Player("p2", exp_rate = 0.6)
 
+    st = State(p1, p2)
+    print("training...")
+    st.play4(int(argv[2]))
+    p1.savePolicy()
+    # p2.savePolicy()
+    finalTime = time.time()
+    totalTime = (finalTime-initTime)
+    print("It took " + str((totalTime)/60) +" minutes to run " + argv[2] + " games")
+    print("Thats an avg of " + str((totalTime/int(argv[2]))) +" seconds a game")
 
 
 if __name__ == "__main__":
@@ -520,32 +591,32 @@ if __name__ == "__main__":
     # testingtestpol = [0,"test", "500k44exp88yP1", "500k44exp88yP1"]
     # testpol(testingtestpol)
     if len(sys.argv) == 1:
-        print("Please input whether you would like to play, train, save, backup (Policy), or test policies")
+        print("Please input whether you would like to play, train, save, backup (Policy), or trainP")
         args = [sys.argv, "", "", "", ""]
-        args[1] = input()
+        args[1] = input().strip()
 
         if args[1] == "play":
             print("Please indicate who you would like to go first (Human or Computer)")
             print("Please note that the Human playing first is not functional")
-            args[2] = input()
+            args[2] = input().strip()
             play(args);
         elif args[1] == "train":
             print("Please input how many games it should run")
-            args[2] = input()
+            args[2] = input().strip()
             print("Please input the experiment rate in range 0-1. The default is 0.3")
-            args[3] = input()
+            args[3] = input().strip()
             training(args)
         elif args[1] == "save":
             print("Please input directory name")
-            args[2] = input()
+            args[2] = input().strip()
             print("Please input how many games are being saved")
-            args[3] = input()
+            args[3] = input().strip()
             save(args);
         elif args[1] == "backup":
             print("Please indicate which policy you want to save 1 or 2")
-            args[2] == input()
+            args[2] == input().strip()
             print("Please input the name of the new saved file")
-            args[3] == input()
+            args[3] == input().strip()
             backup(args)
         # elif args[1] == "test":
         #     print("Please indicate the name of p1")
@@ -555,6 +626,12 @@ if __name__ == "__main__":
         #     print("Please note that it must be a saved policy")
         #     args[3] == input()
         #     testpol(args)
+        elif args[1] == "trainP":
+            print("Please input how many games it should run")
+            args[2] = input().strip()
+            print("Please input the experiment rate in range 0-1. The default is 0.3")
+            args[3] = input().strip()
+            trainPol(args)
     elif sys.argv[1] == "train":
         training(sys.argv)
     elif sys.argv[1] == "play":
